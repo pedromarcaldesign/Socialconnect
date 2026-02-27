@@ -214,6 +214,21 @@ export async function generatePost(params: {
     ? 'Facebook: pode ser mais longo (até 500 palavras), conversacional, storytelling, pergunta de engagement'
     : 'Facebook & Instagram: cria um texto versátil mas com boas práticas para ambas as plataformas';
 
+  // Randomly pick a creative angle to ensure varied posts each time
+  const angles = [
+    'storytelling emocional — abre com uma cena vívida que transporta o leitor para o hotel (ex: "Fecha os olhos. Imagina acordar com...")',
+    'pergunta de engagement — começa com uma pergunta intrigante que convida o leitor a comentar ou partilhar (ex: "E se a tua próxima escapada fosse...")',
+    'destaque sensorial — descreve a experiência através dos sentidos: sons, cheiros, texturas, sabores e vistas do hotel',
+    'foco numa comodidade específica — elege UMA comodidade ou espaço e conta a história desse momento único (piscina, spa, restaurante, quarto com vista, etc.)',
+    'convite à escapada — usa linguagem de fuga ao quotidiano, contraste entre o stress do dia-a-dia e a paz do hotel',
+    'momento especial / celebração — posiciona o hotel como o lugar perfeito para celebrar aniversários, lua-de-mel, pedidos de casamento, ou simplesmente mimar-se',
+    'dica de viagem local — combina o hotel com uma experiência única da região (gastronomia, cultura, natureza) como ponto de partida',
+    'testemunho imaginado — escreve como se fosse um hóspede a descrever em primeira pessoa o que sentiu durante a estadia',
+    'antes e depois — cria contraste entre como o hóspede chega (cansado, stressado) e como parte (renovado, feliz)',
+    'oferta de valor / urgência suave — destaca algo exclusivo do hotel com um call-to-action que cria desejo sem ser agressivo',
+  ];
+  const randomAngle = angles[Math.floor(Math.random() * angles.length)];
+
   try {
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',
@@ -233,12 +248,15 @@ Palavras-chave: ${params.hotelKeywords?.join(', ')}${photoContext}${ideaContext}
 
 Guia da plataforma: ${platformGuide}
 
+ABORDAGEM CRIATIVA OBRIGATÓRIA para este post (segue isto à risca):
+${randomAngle}
+
 Boas práticas obrigatórias:
 - Tom consistente com a identidade do hotel
 - Emojis relevantes mas não excessivos (3-5 máximo)
 - Call-to-action claro (reservar, visitar, descobrir, etc.)
-- Storytelling quando possível
-- Destacar um benefício/experiência única
+- Texto diferente de qualquer post genérico — seja específico, concreto e criativo
+- Destaca um benefício/experiência única do hotel
 - Linguagem em Português de Portugal (não Brasil)
 
 Responde em JSON:

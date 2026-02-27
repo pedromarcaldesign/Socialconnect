@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState, useCallback } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
   CheckCircle, Globe, Copy, Undo2, Trash2, Filter,
-  Loader2, Languages, Image, ChevronDown, ChevronUp
+  Loader2, Languages, Image, ChevronDown, ChevronUp, RefreshCw
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { postsApi, hotelsApi } from '../api';
@@ -177,12 +177,12 @@ function ApprovedPostCard({
                   postsApi.delete(post.id).then(() => {
                     onDelete(post.id);
                     toast.success('Eliminado');
-                  }).catch(() => toast.error('Erro'));
+                  }).catch(() => toast.error('Erro ao eliminar'));
                 }
               }}
               className="btn-ghost py-1.5 px-3 text-xs text-red-400 hover:text-red-600"
             >
-              <Trash2 size={13} />
+              <Trash2 size={13} /> Eliminar
             </button>
           </div>
         </div>
@@ -205,8 +205,10 @@ export default function ApprovedPosts() {
   const [loading, setLoading] = useState(true);
   const [filterHotel, setFilterHotel] = useState('');
   const [filterBilingual, setFilterBilingual] = useState(false);
+  const location = useLocation();
 
-  useEffect(() => {
+  const fetchData = useCallback(() => {
+    setLoading(true);
     Promise.all([
       postsApi.list({ status: 'approved' }),
       hotelsApi.list(),
@@ -216,6 +218,10 @@ export default function ApprovedPosts() {
     }).catch(console.error)
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData, location.key]);
 
   let filtered = filterHotel ? posts.filter(p => p.hotel_id === filterHotel) : posts;
   if (filterBilingual) filtered = filtered.filter(p => p.is_bilingual);
@@ -271,6 +277,14 @@ export default function ApprovedPosts() {
               Copiar todas
             </button>
           )}
+          <button
+            onClick={fetchData}
+            disabled={loading}
+            className="btn-ghost p-1.5 rounded-lg"
+            title="Atualizar lista"
+          >
+            <RefreshCw size={15} className={loading ? 'animate-spin text-slate-400' : 'text-slate-400'} />
+          </button>
         </div>
       </div>
 
