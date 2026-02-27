@@ -4,7 +4,9 @@ import path from 'path';
 import fs from 'fs';
 import dotenv from 'dotenv';
 
-dotenv.config({ path: path.join(__dirname, '../../.env') });
+// Resolve .env from project root (works for both dev and cPanel production)
+const envPath = path.resolve(__dirname, '../../.env');
+dotenv.config({ path: envPath });
 
 import hotelsRouter from './routes/hotels';
 import photosRouter from './routes/photos';

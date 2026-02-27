@@ -7,3 +7,4 @@ uploads/
 .DS_Store
 frontend/dist/
 backend/data/
+*.zip
