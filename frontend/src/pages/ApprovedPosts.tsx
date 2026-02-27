@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  CheckCircle, Globe, Copy, Undo2, Trash2, Filter,
+  CheckCircle, Check, Globe, Copy, Undo2, Trash2, Filter,
   Loader2, Languages, Image, ChevronDown, ChevronUp, RefreshCw
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -25,6 +25,7 @@ function ApprovedPostCard({
   const [translating, setTranslating] = useState(false);
   const [toggling, setToggling] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const handleTranslate = async () => {
     setTranslating(true);
@@ -171,19 +172,36 @@ function ApprovedPostCard({
             </button>
 
             {/* Delete */}
-            <button
-              onClick={() => {
-                if (confirm('Eliminar esta publicação aprovada?')) {
-                  postsApi.delete(post.id).then(() => {
-                    onDelete(post.id);
-                    toast.success('Eliminado');
-                  }).catch(() => toast.error('Erro ao eliminar'));
-                }
-              }}
-              className="btn-ghost py-1.5 px-3 text-xs text-red-400 hover:text-red-600"
-            >
-              <Trash2 size={13} /> Eliminar
-            </button>
+            {confirmingDelete ? (
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-slate-500">Tens a certeza?</span>
+                <button
+                  onClick={() => {
+                    postsApi.delete(post.id).then(() => {
+                      onDelete(post.id);
+                      toast.success('Eliminado');
+                    }).catch(() => toast.error('Erro ao eliminar'));
+                    setConfirmingDelete(false);
+                  }}
+                  className="py-1 px-2 text-xs rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors flex items-center gap-1"
+                >
+                  <Check size={12} /> Sim
+                </button>
+                <button
+                  onClick={() => setConfirmingDelete(false)}
+                  className="py-1 px-2 text-xs rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors"
+                >
+                  Não
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setConfirmingDelete(true)}
+                className="btn-ghost py-1.5 px-3 text-xs text-red-400 hover:text-red-600"
+              >
+                <Trash2 size={13} /> Eliminar
+              </button>
+            )}
           </div>
         </div>
       </div>

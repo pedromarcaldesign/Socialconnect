@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Check, Trash2, Edit2, Save, X, Filter, Sparkles,
-  RefreshCw, Image, ExternalLink, Hash
+  RefreshCw, Image
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { postsApi, hotelsApi, photosApi } from '../api';
@@ -157,13 +157,14 @@ function PostCard({
 }) {
   const [editing, setEditing] = useState(false);
   const [approving, setApproving] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const handleApprove = async () => {
     setApproving(true);
     try {
       await postsApi.approve(post.id);
-      onApprove(post.id);
       toast.success('Publicação aprovada!');
+      onApprove(post.id);
     } catch {
       toast.error('Erro ao aprovar');
     } finally {
@@ -224,9 +225,28 @@ function PostCard({
               <button onClick={() => setEditing(true)} className="btn-secondary py-1.5 px-3 text-xs">
                 <Edit2 size={13} /> Editar
               </button>
-              <button onClick={() => onDelete(post.id)} className="btn-ghost py-1.5 px-3 text-xs text-red-400 hover:text-red-600">
-                <Trash2 size={13} /> Eliminar
-              </button>
+
+              {confirmingDelete ? (
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-slate-500">Tens a certeza?</span>
+                  <button
+                    onClick={() => { onDelete(post.id); setConfirmingDelete(false); }}
+                    className="py-1 px-2 text-xs rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors flex items-center gap-1"
+                  >
+                    <Check size={12} /> Sim
+                  </button>
+                  <button
+                    onClick={() => setConfirmingDelete(false)}
+                    className="py-1 px-2 text-xs rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors"
+                  >
+                    Não
+                  </button>
+                </div>
+              ) : (
+                <button onClick={() => setConfirmingDelete(true)} className="btn-ghost py-1.5 px-3 text-xs text-red-400 hover:text-red-600">
+                  <Trash2 size={13} /> Eliminar
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -261,6 +281,7 @@ export default function DraftPosts() {
   const [loading, setLoading] = useState(true);
   const [filterHotel, setFilterHotel] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
 
   const fetchData = useCallback(() => {
     setLoading(true);
@@ -281,7 +302,6 @@ export default function DraftPosts() {
   }, [fetchData, location.key]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Eliminar esta publicação?')) return;
     try {
       await postsApi.delete(id);
       setPosts(prev => prev.filter(p => p.id !== id));
@@ -341,7 +361,10 @@ export default function DraftPosts() {
               key={post.id}
               post={post}
               hotels={hotels}
-              onApprove={id => setPosts(prev => prev.filter(p => p.id !== id))}
+              onApprove={id => {
+              setPosts(prev => prev.filter(p => p.id !== id));
+              navigate('/approved');
+            }}
               onDelete={handleDelete}
               onUpdate={updated => setPosts(prev => prev.map(p => p.id === updated.id ? updated : p))}
             />
