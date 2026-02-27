@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState, useCallback } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Check, Trash2, Edit2, Save, X, Filter, Sparkles,
   RefreshCw, Image, ExternalLink, Hash
@@ -260,17 +260,25 @@ export default function DraftPosts() {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterHotel, setFilterHotel] = useState('');
+  const location = useLocation();
 
-  useEffect(() => {
+  const fetchData = useCallback(() => {
+    setLoading(true);
     Promise.all([
       postsApi.list({ status: 'draft' }),
       hotelsApi.list(),
     ]).then(([p, h]) => {
       setPosts(p);
       setHotels(h);
-    }).catch(console.error)
-      .finally(() => setLoading(false));
+    }).catch((err) => {
+      console.error(err);
+      toast.error('Erro ao carregar rascunhos. Tente novamente.');
+    }).finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData, location.key]);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Eliminar esta publicação?')) return;
@@ -304,7 +312,17 @@ export default function DraftPosts() {
             {hotels.map(h => <option key={h.id} value={h.id}>{h.name}</option>)}
           </select>
         </div>
-        <span className="badge-amber ml-auto">{filtered.length} rascunhos</span>
+        <div className="flex items-center gap-2 ml-auto">
+          <span className="badge-amber">{filtered.length} rascunhos</span>
+          <button
+            onClick={fetchData}
+            disabled={loading}
+            className="btn-ghost p-1.5 rounded-lg"
+            title="Atualizar lista"
+          >
+            <RefreshCw size={15} className={loading ? 'animate-spin text-slate-400' : 'text-slate-400'} />
+          </button>
+        </div>
       </div>
 
       {filtered.length === 0 ? (
