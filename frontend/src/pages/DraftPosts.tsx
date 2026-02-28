@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Check, Trash2, Edit2, Save, X, Filter, Sparkles,
   RefreshCw, Image
@@ -281,7 +281,6 @@ export default function DraftPosts() {
   const [loading, setLoading] = useState(true);
   const [filterHotel, setFilterHotel] = useState('');
   const location = useLocation();
-  const navigate = useNavigate();
 
   const fetchData = useCallback(() => {
     setLoading(true);
@@ -363,7 +362,6 @@ export default function DraftPosts() {
               hotels={hotels}
               onApprove={id => {
               setPosts(prev => prev.filter(p => p.id !== id));
-              navigate('/approved');
             }}
               onDelete={handleDelete}
               onUpdate={updated => setPosts(prev => prev.map(p => p.id === updated.id ? updated : p))}
