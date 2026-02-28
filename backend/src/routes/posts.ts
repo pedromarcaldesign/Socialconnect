@@ -438,6 +438,62 @@ router.post('/:id/toggle-bilingual', (req: Request, res: Response) => {
   }
 });
 
+// POST /api/posts/:id/regenerate - Regenerate text keeping same hotel/photo
+router.post('/:id/regenerate', async (req: Request, res: Response) => {
+  try {
+    const post = db.prepare(`
+      SELECT p.*,
+        h.name as hotel_name, h.location as hotel_location,
+        h.description as hotel_description, h.tone as hotel_tone,
+        h.keywords as hotel_keywords, h.amenities as hotel_amenities,
+        h.target_audience as hotel_target_audience,
+        ph.analysis as photo_analysis
+      FROM posts p
+      LEFT JOIN hotels h ON p.hotel_id = h.id
+      LEFT JOIN photos ph ON p.photo_id = ph.id
+      WHERE p.id = ?
+    `).get(req.params.id) as Record<string, unknown> | undefined;
+
+    if (!post) {
+      res.status(404).json({ error: 'Post not found' });
+      return;
+    }
+
+    const photoAnalysis = post.photo_analysis
+      ? JSON.parse((post.photo_analysis as string) || '{}')
+      : {};
+
+    const generated = await generatePost({
+      hotelName: post.hotel_name as string,
+      hotelDescription: (post.hotel_description as string) || '',
+      hotelTone: (post.hotel_tone as string) || 'profissional e acolhedor',
+      hotelKeywords: JSON.parse((post.hotel_keywords as string) || '[]'),
+      hotelAmenities: JSON.parse((post.hotel_amenities as string) || '[]'),
+      hotelLocation: (post.hotel_location as string) || '',
+      photoDescription: photoAnalysis.description,
+      photoTags: photoAnalysis.tags,
+      photoMood: photoAnalysis.mood,
+      photoSetting: photoAnalysis.setting,
+      platform: post.platform as string,
+      idea: post.idea as string | undefined,
+      targetAudience: post.hotel_target_audience as string,
+    });
+
+    db.prepare(`
+      UPDATE posts SET text_pt = ?, hashtags = ?, updated_at = datetime('now') WHERE id = ?
+    `).run(generated.text_pt, JSON.stringify(generated.hashtags), req.params.id);
+
+    res.json({
+      text_pt: generated.text_pt,
+      hashtags: generated.hashtags,
+      platform_tip: generated.platform_tip,
+    });
+  } catch (error) {
+    console.error('Regenerate error:', error);
+    res.status(500).json({ error: 'Failed to regenerate post' });
+  }
+});
+
 // DELETE /api/posts/:id
 router.delete('/:id', (req: Request, res: Response) => {
   try {

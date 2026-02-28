@@ -157,7 +157,21 @@ function PostCard({
 }) {
   const [editing, setEditing] = useState(false);
   const [approving, setApproving] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+
+  const handleRegenerate = async () => {
+    setRegenerating(true);
+    try {
+      const result = await postsApi.regenerate(post.id);
+      onUpdate({ ...post, text_pt: result.text_pt, hashtags: result.hashtags });
+      toast.success('Texto regenerado com nova abordagem!');
+    } catch {
+      toast.error('Erro ao regenerar');
+    } finally {
+      setRegenerating(false);
+    }
+  };
 
   const handleApprove = async () => {
     setApproving(true);
@@ -221,6 +235,10 @@ function PostCard({
               <button onClick={handleApprove} disabled={approving} className="btn-success py-1.5 px-3 text-xs">
                 {approving ? <RefreshCw size={13} className="animate-spin" /> : <Check size={13} />}
                 Aprovar
+              </button>
+              <button onClick={handleRegenerate} disabled={regenerating} className="btn-secondary py-1.5 px-3 text-xs">
+                {regenerating ? <RefreshCw size={13} className="animate-spin" /> : <Sparkles size={13} />}
+                Regenerar
               </button>
               <button onClick={() => setEditing(true)} className="btn-secondary py-1.5 px-3 text-xs">
                 <Edit2 size={13} /> Editar

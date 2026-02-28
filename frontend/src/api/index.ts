@@ -48,6 +48,7 @@ export const postsApi = {
   unapprove: (id: string) => api.post(`/posts/${id}/unapprove`).then(r => r.data),
   translate: (id: string) => api.post(`/posts/${id}/translate`).then(r => r.data),
   toggleBilingual: (id: string) => api.post(`/posts/${id}/toggle-bilingual`).then(r => r.data),
+  regenerate: (id: string) => api.post(`/posts/${id}/regenerate`).then(r => r.data),
   delete: (id: string) => api.delete(`/posts/${id}`).then(r => r.data),
 };
 
