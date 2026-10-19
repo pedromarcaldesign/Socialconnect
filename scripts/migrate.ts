@@ -1,16 +1,18 @@
 // Aplica as migrações SQL de db/migrations por ordem, uma vez cada.
 // Uso: DATABASE_URL=postgres://... npm run db:migrate
+// MIGRATION_DATABASE_URL (opcional) tem prioridade: no Supabase, a ligação direta ou o "session pooler".
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import postgres from "postgres";
 
-const url = process.env.DATABASE_URL;
+const url = process.env.MIGRATION_DATABASE_URL || process.env.DATABASE_URL;
 if (!url) {
   console.error("DATABASE_URL não definido");
   process.exit(1);
 }
 
-const sql = postgres(url, { max: 1, onnotice: () => {} });
+// prepare:false para funcionar também atrás do pooler do Supabase em modo transaction
+const sql = postgres(url, { max: 1, prepare: false, onnotice: () => {} });
 const dir = path.resolve(import.meta.dirname, "../db/migrations");
 
 try {
