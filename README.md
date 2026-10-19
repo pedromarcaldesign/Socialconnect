@@ -35,13 +35,28 @@ da Meta, Claude (`claude-opus-5-5`, com fallback do servidor em caso de recusa).
 
 ### 1. Supabase
 
-1. Cria um projeto em supabase.com.
-2. **Authentication > Providers**: deixa *Email* ligado (magic link). Para entrar com Google, liga *Google*
-   com um OAuth client da Purepixel na Google Cloud.
-3. **Authentication > URL configuration**: Site URL = `APP_URL`; Redirect URLs = `APP_URL/auth/callback`.
-4. **Storage**: cria um bucket **privado** chamado `media`.
-5. Copia para as variáveis de ambiente: `DATABASE_URL` (connection string, modo *transaction*),
-   `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
+1. Cria um projeto em supabase.com, na região **Europa** (ex.: Frankfurt). Guarda a password da base de dados.
+2. **Connect** (botão no topo do projeto):
+   - *Transaction pooler* (porta 6543) → `DATABASE_URL` (usada pela app);
+   - *Session pooler* (porta 5432) → `MIGRATION_DATABASE_URL` (usada pelas migrações).
+   Substitui `[YOUR-PASSWORD]` pela password do passo 1.
+3. **Project Settings > API Keys**: a chave *publishable* (ou a *anon*, nas chaves antigas) →
+   `NEXT_PUBLIC_SUPABASE_ANON_KEY`; a chave *secret* (ou *service_role*) → `SUPABASE_SERVICE_ROLE_KEY`;
+   o *Project URL* → `NEXT_PUBLIC_SUPABASE_URL`. A chave secreta nunca vai para o browser.
+4. **Authentication > URL Configuration**: *Site URL* = `APP_URL`; em *Redirect URLs* junta
+   `APP_URL/auth/callback` (e `http://localhost:3000/auth/callback` para desenvolvimento).
+5. **Authentication > Emails > SMTP Settings**: liga um SMTP próprio (Resend, Brevo, o email da Purepixel).
+   O SMTP de origem do Supabase só envia para membros da equipa do projeto e tem um limite muito baixo
+   por hora, por isso os links de login não chegam aos outros colegas sem isto.
+6. (Opcional) **Authentication > Sign In / Providers > Google**: liga com um OAuth client da Purepixel
+   na Google Cloud; o *callback URL* que o Supabase mostra vai para esse OAuth client.
+7. **Storage > New bucket**: nome `media`, **privado** (Public desligado), limite de 25 MB,
+   tipos permitidos `image/jpeg, image/png, image/webp`.
+8. As tabelas são criadas pelas migrações (`npm run db:migrate`, que o Netlify corre em cada deploy).
+   O painel do Supabase avisa "RLS enabled, no policies": é intencional, a app acede só pelo servidor.
+
+No plano gratuito o Supabase pausa projetos sem atividade durante uma semana; com o Inngest a correr a
+varredura a cada 5 minutos isso não acontece, mas para produção o plano Pro dá backups diários.
 
 ### 2. Meta
 
