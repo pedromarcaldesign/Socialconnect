@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { createHash } from "node:crypto";
 import { redirect, notFound } from "next/navigation";
+import { connection } from "next/server";
 import { and, eq, isNull, gt, asc } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { env } from "@/lib/env";
@@ -71,6 +72,7 @@ async function resolveMembership(user: SessionUser): Promise<AppUser | null> {
 
 /** Utilizador autenticado e com acesso, ou null. Memorizado por pedido. */
 export const getUser = cache(async (): Promise<AppUser | null> => {
+  await connection(); // depende sempre do pedido: nunca pré-gerar na build
   const user = await sessionUser();
   if (!user) return null;
   return resolveMembership(user);

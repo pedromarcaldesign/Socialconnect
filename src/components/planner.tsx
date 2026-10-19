@@ -49,6 +49,7 @@ function Chip({ brandId, post, draggable }: { brandId: string; post: PlannerPost
       href={`/b/${brandId}/posts/${post.id}`}
       draggable={draggable}
       onDragStart={(e) => { e.dataTransfer.setData("text/post", post.id); e.dataTransfer.effectAllowed = "move"; }}
+      title={post.text || undefined}
       className={clsx("flex items-center gap-1.5 rounded-sm border border-border bg-bg px-1.5 py-1 text-xs hover:border-border-input", draggable && "cursor-grab")}
       aria-label={`${post.time ?? ""} ${POST_STATUS[post.status].label}: ${post.text || "sem texto"}`}
     >
@@ -58,7 +59,6 @@ function Chip({ brandId, post, draggable }: { brandId: string; post: PlannerPost
         // eslint-disable-next-line @next/next/no-img-element
         <img src={post.thumb} alt="" className="size-5 shrink-0 rounded-sm object-cover" />
       ) : null}
-      <span className="hidden min-w-0 flex-1 truncate xl:block">{post.text}</span>
       <span className="ml-auto flex shrink-0 gap-0.5">{post.networks.map((n) => <NetworkMark key={n} network={n} size="sm" />)}</span>
     </Link>
   );

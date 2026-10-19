@@ -4,8 +4,31 @@ Corte 1: ferramenta interna da Purepixel, só **Instagram + Facebook** através 
 própria. A app usa acesso Standard, está em modo Live e publica com um token de System User do
 Business Manager. Inclui marcas, biblioteca de media por marca, compositor multi-rede,
 agendar/publicar, calendário e IA de texto e de imagem.
-Fontes: `replica/recon.md`, `replica/features.csv`. SQL: `replica/schema.sql`, testado em
-Postgres 16: aplica sem erros e o RLS isola workspaces.
+Fontes: `replica/recon.md`, `replica/features.csv`. SQL: `db/migrations/0001_init.sql`.
+
+## Alterações durante a construção (2026-10-19)
+
+A app foi construída no repositório `pedromarcaldesign/socialconnect`, que substitui a SocialConnect.
+O que mudou em relação ao plano abaixo:
+
+- **Acesso:** em vez de policies RLS por utilizador, o servidor liga-se ao Postgres como dono das tabelas
+  e verifica permissões numa só função (`requireBrand` / `requireAdmin` em `src/lib/auth.ts`). O RLS fica
+  ligado **sem** policies, por isso a API pública do Supabase não lê nada. A migração está em
+  `db/migrations/0001_init.sql` (16 tabelas) e substitui o antigo `replica/schema.sql`.
+- **Contas:** `profiles.id` é o id do Supabase Auth, sem FK para `auth.users`, para a base correr fora
+  do Supabase em testes. Os tokens ficam em texto cifrado (AES-256-GCM, chave derivada de `APP_SECRET`).
+- **Créditos de IA:** não há saldo nem débito: é uso interno. Cada pedido fica registado em
+  `ai_generations` com os tokens gastos.
+- **Storage:** atrás de uma interface com dois drivers: Supabase Storage em produção e disco local em
+  dev/testes (`/api/files/...` com URLs assinadas por HMAC).
+- **Jobs:** o Inngest é o caminho principal. Sem ele, os jobs correm no processo (dev) e há um endpoint
+  `POST /api/cron/due` (protegido por `CRON_SECRET`) como alternativa e rede de segurança.
+- **IA:** porta os prompts da SocialConnect (ângulos criativos, boas práticas) para saídas
+  estruturadas (zod), com `claude-opus-5-5` por omissão e `fallbacks: "default"`. A leitura do site da
+  marca substitui o antigo scraping do Booking.com, que não era uma fonte oficial: lê só o URL dado pelo
+  utilizador e recusa endereços internos.
+- **Fora deste corte:** vídeo/Reels, aprovação por clientes, papéis por marca, Realtime e o banco de
+  imagens Unsplash/Pexels da app antiga.
 
 ## Stack
 

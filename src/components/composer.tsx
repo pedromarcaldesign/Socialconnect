@@ -11,6 +11,7 @@ import { Modal, useToast } from "@/components/client-ui";
 import { Dropzone, MediaTile, UploadList, useUploader } from "@/components/media-library";
 import { FORMATS, LIMITS, NETWORK_LABEL, captionFor, countHashtags, defaultFormat, validateTarget } from "@/lib/networks";
 import { zonedToUtc } from "@/lib/time";
+import { TIMEZONES } from "@/lib/validation";
 import type { MediaView } from "@/lib/media-view";
 import type { Network, PostAspect, TargetFormat } from "@/lib/db/schema";
 import type { CaptionOptions } from "@/lib/ai/service";
@@ -457,10 +458,10 @@ export function Composer({ brandId, brandName, timezone, accounts, media, initia
       {/* Coluna direita: pré-visualização e envio */}
       <div className="flex flex-col gap-5 lg:sticky lg:top-6 lg:self-start">
         <Card as="section" className="p-5">
-          <div className="mb-3 flex items-center justify-between gap-2">
+          <div className="mb-3 flex flex-col gap-2">
             <h2 className="text-sm font-semibold">Pré-visualização</h2>
             {targets.length > 1 ? (
-              <Select aria-label="Pré-visualizar conta" value={previewAccount?.id ?? ""} onChange={(e) => setPreviewId(e.target.value)} className="h-8 w-44 text-xs">
+              <Select aria-label="Pré-visualizar conta" value={previewAccount?.id ?? ""} onChange={(e) => setPreviewId(e.target.value)} className="h-8 text-xs">
                 {targets.map((t) => <option key={t.accountId} value={t.accountId}>{NETWORK_LABEL[accountById(t.accountId).network]} · {accountById(t.accountId).username ?? accountById(t.accountId).name}</option>)}
               </Select>
             ) : null}
@@ -481,17 +482,17 @@ export function Composer({ brandId, brandName, timezone, accounts, media, initia
           </div>
           {mode === "schedule" ? (
             <div className="flex flex-col gap-2">
-              <div className="grid grid-cols-[1fr_110px] gap-2">
+              <div className="grid grid-cols-[1fr_128px] gap-2">
                 <label className="sr-only" htmlFor="when-date">Data</label>
                 <Input id="when-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} aria-invalid={Boolean(whenError)} />
                 <label className="sr-only" htmlFor="when-time">Hora</label>
                 <Input id="when-time" type="time" step={300} value={time} onChange={(e) => setTime(e.target.value)} aria-invalid={Boolean(whenError)} />
               </div>
-              <p className={clsx("text-xs", whenError ? "text-danger" : "text-text-muted")}>{whenError ?? `Hora de ${timezone.split("/")[1]?.replace("_", " ") ?? timezone}`}</p>
+              <p className={clsx("text-xs", whenError ? "text-danger" : "text-text-muted")}>{whenError ?? `Hora local: ${TIMEZONES.find((t) => t.value === timezone)?.label ?? timezone}`}</p>
             </div>
           ) : null}
           {Object.keys(localErrors).length && mode !== "draft" ? (
-            <Alert tone="danger" title="Falta corrigir">
+            <Alert tone="warning" title={mode === "now" ? "Antes de publicar" : "Antes de agendar"}>
               {Object.entries(localErrors).map(([id, errs]) => <p key={id}><strong>{accountById(id).username ? `@${accountById(id).username}` : accountById(id).name}:</strong> {errs[0]}</p>)}
             </Alert>
           ) : null}

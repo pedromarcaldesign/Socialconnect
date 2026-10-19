@@ -38,6 +38,8 @@ export const env = {
 
   anthropicApiKey: () => optional("ANTHROPIC_API_KEY"),
   aiModel: () => optional("AI_MODEL") ?? "claude-opus-5-5",
+  // só para testes (API simulada); em produção fica vazio
+  anthropicBaseUrl: () => optional("AI_BASE_URL"),
 
   // sem chave do Inngest, os jobs correm logo no processo (dev/testes)
   inngestEnabled: () => Boolean(optional("INNGEST_EVENT_KEY") || optional("INNGEST_DEV")),

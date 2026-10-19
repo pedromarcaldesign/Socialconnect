@@ -12,11 +12,11 @@ export const LIMITS = {
 /** Formatos disponíveis neste corte (só imagens). */
 export const FORMATS: Record<Network, { value: TargetFormat; label: string }[]> = {
   instagram: [
-    { value: "feed", label: "Publicação" },
+    { value: "feed", label: "Feed" },
     { value: "carousel", label: "Carrossel" },
     { value: "story", label: "Story" },
   ],
-  facebook: [{ value: "feed", label: "Publicação" }],
+  facebook: [{ value: "feed", label: "Feed" }],
 };
 
 /** Formato por omissão do Instagram conforme o número de imagens. */

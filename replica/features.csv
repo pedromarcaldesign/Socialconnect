@@ -1,40 +1,40 @@
 feature,area,priority,original,clone,notes
-Sign up and login with email or Google,onboarding,must,yes,no,
-Workspace for the agency (Purepixel),onboarding,must,yes,no,
-Create brands (name logo time zone language),brands,must,yes,no,core of the request: Hotel 1 Hotel 2...
-Brand switcher always visible,brands,must,yes,no,
-Connect Instagram professional account to a brand,connections,must,yes,no,Meta app review needed (instagram_content_publish)
-Connect Facebook Page to a brand,connections,must,yes,no,Meta app review (pages_manage_posts)
-Connect Google Business Profile location to a brand,connections,must,yes,no,important for hotels; API access request
-Connection status with expiry warning and reconnect,connections,must,yes,no,
-Per-brand media library (upload photos and videos),media,must,partial,no,Metricool library is weak; this is our improvement
-Bulk drag-and-drop upload with progress,media,must,yes,no,
-Image conversion and resizing per network (HEIC 4:5 9:16),media,must,yes,no,
-Compose one post for many networks of a brand,composer,must,yes,no,the core loop
-Per-network text override and options,composer,must,yes,no,
-Per-network character and media validation,composer,must,yes,no,limits in recon.md
-Live preview per network,composer,must,yes,no,
-Instagram carousel and Reels,composer,must,yes,no,
-Publish now,publishing,must,yes,no,
-Schedule at date and time in the brand's time zone,publishing,must,yes,no,
-Publishing engine with retries and partial-failure status,publishing,must,yes,no,
-Calendar planner (month week list) per brand,planner,must,yes,no,
-Drafts,planner,must,yes,no,
-AI text generator (topic tone language network),ai,must,yes,no,
-AI image generation saved to brand library,ai,should,unverified,no,native image generation in Metricool not confirmed; requested by user
-Brand voice / AI configuration per brand and per network,ai,should,yes,no,
-AI rewrite actions (shorter longer hashtags CTA translate),ai,should,yes,no,translate PT/EN useful for hotels
-AI credits per workspace with usage log,ai,should,yes,no,
+Sign up and login with email or Google,onboarding,must,yes,yes,magic link + Google via Supabase; invite-only
+Workspace for the agency (Purepixel),onboarding,must,yes,yes,
+Create brands (name logo time zone language),brands,must,yes,partial,"core of the request: Hotel 1 Hotel 2...; name, colour, time zone, profile; no logo upload yet"
+Brand switcher always visible,brands,must,yes,yes,
+Connect Instagram professional account to a brand,connections,must,yes,yes,Meta app review needed (instagram_content_publish); System User sync + assign
+Connect Facebook Page to a brand,connections,must,yes,yes,Meta app review (pages_manage_posts); System User sync + assign
+Connect Google Business Profile location to a brand,connections,must,yes,no,important for hotels; API access request; next cut; request API access
+Connection status with expiry warning and reconnect,connections,must,yes,yes,daily healthcheck; auth errors mark needs_reconnect
+Per-brand media library (upload photos and videos),media,must,partial,partial,Metricool library is weak; this is our improvement; photos only; no video yet
+Bulk drag-and-drop upload with progress,media,must,yes,yes,
+Image conversion and resizing per network (HEIC 4:5 9:16),media,must,yes,partial,JPEG renditions 4:5 1:1 1.91:1 9:16; HEIC not decoded (export as JPEG)
+Compose one post for many networks of a brand,composer,must,yes,yes,the core loop
+Per-network text override and options,composer,must,yes,yes,
+Per-network character and media validation,composer,must,yes,yes,limits in recon.md; shared rules client + server
+Live preview per network,composer,must,yes,yes,approximate IG/FB preview
+Instagram carousel and Reels,composer,must,yes,partial,carousel and story yes; Reels need video
+Publish now,publishing,must,yes,yes,
+Schedule at date and time in the brand's time zone,publishing,must,yes,yes,DST-safe
+Publishing engine with retries and partial-failure status,publishing,must,yes,yes,Inngest + cron fallback
+Calendar planner (month week list) per brand,planner,must,yes,partial,month + list + drafts; no week view
+Drafts,planner,must,yes,yes,
+AI text generator (topic tone language network),ai,must,yes,yes,
+AI image generation saved to brand library,ai,should,unverified,no,native image generation in Metricool not confirmed; requested by user; not in this cut
+Brand voice / AI configuration per brand and per network,ai,should,yes,partial,per brand; not per network
+AI rewrite actions (shorter longer hashtags CTA translate),ai,should,yes,yes,translate PT/EN useful for hotels; plus fix and PT+EN
+AI credits per workspace with usage log,ai,should,yes,partial,usage log only; internal tool has no credit cap
 Connect LinkedIn company page,connections,should,yes,no,Community Management API approval
 Connect TikTok,connections,should,yes,no,Content Posting API audit; private-only until audited
-First comment per network,composer,should,yes,no,IG FB LinkedIn TikTok YouTube
+First comment per network,composer,should,yes,yes,IG FB LinkedIn TikTok YouTube; IG and FB
 Best-time slots shaded in calendar,planner,should,yes,no,needs follower activity data from each network API
-Drag and drop to reschedule in calendar,planner,should,yes,no,
-Duplicate post to other brands,planner,should,yes,no,e.g. same campaign for Hotel 1 and Hotel 2
-Team members with role per brand,team,should,yes,no,Metricool: Advanced plan
+Drag and drop to reschedule in calendar,planner,should,yes,yes,
+Duplicate post to other brands,planner,should,yes,yes,e.g. same campaign for Hotel 1 and Hotel 2; to another brand copies the text
+Team members with role per brand,team,should,yes,partial,Metricool: Advanced plan; workspace roles; not per brand
 Client approval by email link without account,team,should,yes,no,
 Manual reminder for Stories and semi-auto networks,publishing,should,yes,no,push/email with media and text
-Notifications (failures expiring tokens approvals),notifications,should,yes,no,
+Notifications (failures expiring tokens approvals),notifications,should,yes,partial,stored in DB; no notification UI or email yet
 Connect X (Twitter),connections,could,yes,no,paid X API; Metricool charges add-on
 Connect Threads and Bluesky,connections,could,yes,no,Bluesky API is the easiest
 Connect YouTube and Pinterest,connections,could,yes,no,

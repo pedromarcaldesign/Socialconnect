@@ -20,7 +20,7 @@ export class AIError extends Error {}
 let client: Anthropic | undefined;
 function anthropic(): Anthropic | null {
   if (!env.anthropicApiKey()) return null;
-  client ??= new Anthropic({ apiKey: env.anthropicApiKey() });
+  client ??= new Anthropic({ apiKey: env.anthropicApiKey(), baseURL: env.anthropicBaseUrl() });
   return client;
 }
 
@@ -202,14 +202,21 @@ export async function profileFromWebsite(input: { workspaceId: string; brandId: 
   } catch {
     throw new AIError("O endereço do site não é válido.");
   }
-  if (!["http:", "https:"].includes(url.protocol)) throw new AIError("O site tem de começar por http:// ou https://.");
-  const addresses = await lookup(url.hostname, { all: true }).catch(() => []);
-  if (addresses.length === 0 || addresses.some((a) => isPrivateAddress(a.address))) throw new AIError("Não foi possível abrir esse site.");
-
-  const res = await fetch(url, {
-    headers: { "user-agent": "SocialPurepixel/1.0 (+brand profile)", accept: "text/html" },
-    redirect: "follow", signal: AbortSignal.timeout(10_000),
-  }).catch(() => null);
+  // Seguir redirecionamentos à mão, validando cada endereço (nunca IPs internos).
+  let res: Response | null = null;
+  for (let hop = 0; hop < 4; hop++) {
+    if (!["http:", "https:"].includes(url.protocol)) throw new AIError("O site tem de começar por http:// ou https://.");
+    const addresses = await lookup(url.hostname, { all: true }).catch(() => []);
+    if (addresses.length === 0 || addresses.some((a) => isPrivateAddress(a.address))) throw new AIError("Não foi possível abrir esse site.");
+    res = await fetch(url, {
+      headers: { "user-agent": "SocialPurepixel/1.0 (+brand profile)", accept: "text/html" },
+      redirect: "manual", signal: AbortSignal.timeout(10_000),
+    }).catch(() => null);
+    const location = res && res.status >= 300 && res.status < 400 ? res.headers.get("location") : null;
+    if (!location) break;
+    url = new URL(location, url);
+    res = null;
+  }
   if (!res?.ok) throw new AIError("Não foi possível abrir esse site.");
   const html = (await res.text()).slice(0, 600_000);
   const meta = [...html.matchAll(/<meta[^>]+(?:name|property)=["'](?:description|og:description|og:title)["'][^>]*content=["']([^"']+)["']/gi)].map((m) => m[1]);

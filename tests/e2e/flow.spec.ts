@@ -157,3 +157,52 @@ test.describe.serial("agendamento", () => {
     expect(res.status()).toBe(401);
   });
 });
+
+test.describe.serial("IA (API simulada)", () => {
+  const AI = process.env.MOCK_ANTHROPIC_URL ?? "http://localhost:4020";
+  type AILog = { beta?: string; model: string; fallbacks: unknown; effort?: string; format?: string; hasImage: boolean };
+
+  test("fotos novas são descritas e etiquetadas", async ({ page }) => {
+    await page.goto(`${brandUrl}/media`);
+    await page.locator('input[type="file"]').setInputFiles(["tests/e2e/fixtures/piscina.jpg"]);
+    await expect(page.locator("main ul li > button")).toHaveCount(3);
+    await page.waitForTimeout(1500); // a análise corre em segundo plano
+    await page.reload();
+    await page.locator("main ul li > button").first().click();
+    await expect(page.getByLabel("Descrição")).toHaveValue("Piscina exterior com um grande sol amarelo.");
+    await expect(page.getByLabel("Etiquetas")).toHaveValue(/piscina, sol/);
+  });
+
+  test("gerar legenda e reescrever no compositor", async ({ page }) => {
+    await page.goto(`${brandUrl}/compose`);
+    await page.getByRole("button", { name: "Juntar fotos" }).click();
+    await page.getByRole("dialog").locator("button[aria-pressed]").first().click();
+    await page.getByRole("dialog").getByRole("button", { name: /Concluído/ }).click();
+    await page.getByRole("button", { name: "Escrever com IA" }).click();
+    await page.getByLabel("Tema ou ideia").fill("tardes de verão na piscina");
+    await page.getByRole("button", { name: "Gerar 3 propostas" }).click();
+    await expect(page.getByRole("button", { name: "Usar esta" })).toHaveCount(3);
+    await page.getByRole("button", { name: "Usar esta" }).first().click();
+    await expect(page.getByLabel("Texto da publicação")).toHaveValue(/Reserva já o teu lugar ao sol ☀️\n\n#cascais #verao$/);
+
+    await page.getByRole("button", { name: "Encurtar" }).click();
+    await expect(page.getByLabel("Texto da publicação")).toHaveValue("Texto reescrito pela IA.");
+
+    const log: AILog[] = await (await fetch(`${AI}/__log`)).json();
+    expect(log.length).toBeGreaterThanOrEqual(3);
+    for (const call of log) {
+      expect(call.model).toBe("claude-opus-5-5");
+      expect(call.fallbacks).toBe("default");
+      expect(call.beta).toContain("server-side-fallback-2026-07-01");
+      expect(call.format).toBe("json_schema");
+    }
+    expect(log.some((c) => c.hasImage && c.effort === "medium")).toBe(true); // legenda com a foto
+  });
+
+  test("ler site recusa endereços internos", async ({ page }) => {
+    await page.goto(`${brandUrl}/settings`);
+    await page.getByLabel("Site da marca").fill("http://localhost:3000");
+    await page.getByRole("button", { name: "Ler site" }).click();
+    await expect(page.getByText("Não foi possível abrir esse site.")).toBeVisible();
+  });
+});
