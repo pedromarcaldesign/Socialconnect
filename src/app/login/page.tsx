@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth";
 import { env } from "@/lib/env";
@@ -26,6 +27,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           </div>
         </div>
         <LoginForm error={erro ? ERRORS[erro] ?? null : null} googleEnabled={Boolean(env.supabaseUrl())} />
+        <nav aria-label="Informação legal" className="mt-6 flex justify-center gap-4 text-xs text-text-muted">
+          <Link href="/privacidade" className="hover:text-text">Privacidade</Link>
+          <Link href="/eliminacao-de-dados" className="hover:text-text">Eliminação de dados</Link>
+        </nav>
       </div>
     </main>
   );
