@@ -1,0 +1,54 @@
+feature,area,priority,original,clone,notes
+Sign up and login with email or Google,onboarding,must,yes,yes,magic link + Google via Supabase; invite-only
+Workspace for the agency (Purepixel),onboarding,must,yes,yes,
+Create brands (name logo time zone language),brands,must,yes,partial,"core of the request: Hotel 1 Hotel 2...; name, colour, time zone, profile; no logo upload yet"
+Brand switcher always visible,brands,must,yes,yes,
+Connect Instagram professional account to a brand,connections,must,yes,yes,Meta app review needed (instagram_content_publish); System User sync + assign
+Connect Facebook Page to a brand,connections,must,yes,yes,Meta app review (pages_manage_posts); System User sync + assign
+Connect Google Business Profile location to a brand,connections,must,yes,no,important for hotels; API access request; next cut; request API access
+Connection status with expiry warning and reconnect,connections,must,yes,yes,daily healthcheck; auth errors mark needs_reconnect
+Per-brand media library (upload photos and videos),media,must,partial,partial,Metricool library is weak; this is our improvement; photos only; no video yet
+Bulk drag-and-drop upload with progress,media,must,yes,yes,
+Image conversion and resizing per network (HEIC 4:5 9:16),media,must,yes,partial,JPEG renditions 4:5 1:1 1.91:1 9:16; HEIC not decoded (export as JPEG)
+Compose one post for many networks of a brand,composer,must,yes,yes,the core loop
+Per-network text override and options,composer,must,yes,yes,
+Per-network character and media validation,composer,must,yes,yes,limits in recon.md; shared rules client + server
+Live preview per network,composer,must,yes,yes,approximate IG/FB preview
+Instagram carousel and Reels,composer,must,yes,partial,carousel and story yes; Reels need video
+Publish now,publishing,must,yes,yes,
+Schedule at date and time in the brand's time zone,publishing,must,yes,yes,DST-safe
+Publishing engine with retries and partial-failure status,publishing,must,yes,yes,Inngest + cron fallback
+Calendar planner (month week list) per brand,planner,must,yes,partial,month + list + drafts; no week view
+Drafts,planner,must,yes,yes,
+AI text generator (topic tone language network),ai,must,yes,yes,
+AI image generation saved to brand library,ai,should,unverified,no,native image generation in Metricool not confirmed; requested by user; not in this cut
+Brand voice / AI configuration per brand and per network,ai,should,yes,partial,per brand; not per network
+AI rewrite actions (shorter longer hashtags CTA translate),ai,should,yes,yes,translate PT/EN useful for hotels; plus fix and PT+EN
+AI credits per workspace with usage log,ai,should,yes,partial,usage log only; internal tool has no credit cap
+Connect LinkedIn company page,connections,should,yes,no,Community Management API approval
+Connect TikTok,connections,should,yes,no,Content Posting API audit; private-only until audited
+First comment per network,composer,should,yes,yes,IG FB LinkedIn TikTok YouTube; IG and FB
+Best-time slots shaded in calendar,planner,should,yes,no,needs follower activity data from each network API
+Drag and drop to reschedule in calendar,planner,should,yes,yes,
+Duplicate post to other brands,planner,should,yes,yes,e.g. same campaign for Hotel 1 and Hotel 2; to another brand copies the text
+Team members with role per brand,team,should,yes,partial,Metricool: Advanced plan; workspace roles; not per brand
+Client approval by email link without account,team,should,yes,no,
+Manual reminder for Stories and semi-auto networks,publishing,should,yes,no,push/email with media and text
+Notifications (failures expiring tokens approvals),notifications,should,yes,partial,stored in DB; no notification UI or email yet
+Connect X (Twitter),connections,could,yes,no,paid X API; Metricool charges add-on
+Connect Threads and Bluesky,connections,could,yes,no,Bluesky API is the easiest
+Connect YouTube and Pinterest,connections,could,yes,no,
+Folders and tags in media library,media,could,unverified,no,
+Import from Google Drive and Canva,media,could,yes,no,official APIs only
+CSV bulk scheduling,planner,could,yes,no,
+Autolists (recurring evergreen queues),planner,could,yes,no,
+Share read-only calendar with client,team,could,yes,no,
+Hashtag groups saved per brand,composer,could,unverified,no,
+Mobile app,platform,could,yes,no,start with responsive web
+Analytics and reports,analytics,could,yes,skip,out of requested scope; separate product
+Competitor tracking,analytics,could,yes,skip,out of scope
+Ads management (Meta Google TikTok ads),ads,could,yes,skip,out of scope
+Unified inbox (comments and DMs),inbox,could,yes,skip,out of the requested loop; revisit later
+Trending audio for Reels,composer,could,yes,skip,not available through public API to third parties
+Metricool branding copy and illustrations,brand,could,yes,skip,never copied; Social Purepixel has its own identity
+Metricool's existing platform API approvals,connections,must,yes,skip,cannot be cloned; Purepixel must apply to each network itself

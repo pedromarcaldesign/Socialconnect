@@ -1,0 +1,31 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "./tokens.css";
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--color-canvas);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+  ::selection { background: var(--color-accent-soft); }
+}
+
+@utility shimmer {
+  background: linear-gradient(90deg, var(--color-canvas) 0%, var(--color-surface) 50%, var(--color-canvas) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+  @media (prefers-reduced-motion: reduce) { animation: none; }
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
