@@ -31,6 +31,10 @@ export const env = {
   // só fora de produção: entra automaticamente com este email, sem Supabase Auth
   devAuthEmail: () => (process.env.NODE_ENV === "production" ? undefined : optional("DEV_AUTH_EMAIL")),
 
+  // páginas legais (/privacidade, /eliminacao-de-dados)
+  legalEntity: () => optional("LEGAL_ENTITY_NAME") ?? "Purepixel",
+  privacyEmail: () => optional("PRIVACY_CONTACT_EMAIL"),
+
   metaGraphBase: () => (optional("META_GRAPH_BASE") ?? "https://graph.facebook.com").replace(/\/$/, ""),
   metaGraphVersion: () => optional("META_GRAPH_VERSION") ?? "v24.0",
   metaSystemUserToken: () => optional("META_SYSTEM_USER_TOKEN"),

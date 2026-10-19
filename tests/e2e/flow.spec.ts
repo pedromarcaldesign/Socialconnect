@@ -206,3 +206,13 @@ test.describe.serial("IA (API simulada)", () => {
     await expect(page.getByText("Não foi possível abrir esse site.")).toBeVisible();
   });
 });
+
+test.describe("páginas legais", () => {
+  test("privacidade e eliminação de dados abrem e ligam-se entre si", async ({ page }) => {
+    await page.goto("/privacidade");
+    await expect(page.getByRole("heading", { name: "Política de privacidade", level: 1 })).toBeVisible();
+    await page.getByRole("article").getByRole("link", { name: "Eliminação de dados" }).click();
+    await expect(page).toHaveURL(/\/eliminacao-de-dados$/);
+    await expect(page.getByRole("heading", { name: "Como pedir a eliminação" })).toBeVisible();
+  });
+});
